@@ -23,7 +23,8 @@
 #include "raop_buffer.h"
 #include "raop_rtp.h"
 
-#include "crypto.h"
+#include "../crypto/crypto.h"
+
 #include "compat.h"
 #include "stream.h"
 #include "global.h"
@@ -47,7 +48,10 @@ typedef struct {
 struct raop_buffer_s {
     logger_t *logger;
     /* AES CTX used for decryption */
-    aes_ctx_t *aes_ctx;
+    // aes_ctx_t *aes_ctx;
+
+    unsigned char aeskey[RAOP_AESKEY_LEN];
+    unsigned char aesiv[RAOP_AESIV_LEN];
 
     /* First and last seqnum */
     int is_empty;
@@ -72,7 +76,10 @@ raop_buffer_init(logger_t *logger,
     }
     raop_buffer->logger = logger;
     // Need to be initialized internally
-    raop_buffer->aes_ctx = aes_cbc_init(aeskey, aesiv, AES_DECRYPT);
+    // raop_buffer->aes_ctx = aes_cbc_init(aeskey, aesiv, AES_DECRYPT);
+
+    memcpy(raop_buffer->aeskey, aeskey, RAOP_AESKEY_LEN);
+    memcpy(raop_buffer->aesiv, aesiv, RAOP_AESIV_LEN);
 
 #ifdef DUMP_AUDIO
     if (file_keyiv != NULL) {
@@ -104,7 +111,7 @@ raop_buffer_destroy(raop_buffer_t *raop_buffer)
     }
 
     if (raop_buffer) {
-        aes_cbc_destroy(raop_buffer->aes_ctx);
+        // aes_cbc_destroy(raop_buffer->aes_ctx);
         free(raop_buffer);
     }
 
@@ -164,8 +171,14 @@ raop_buffer_decrypt(raop_buffer_t *raop_buffer, unsigned char *data, unsigned ch
     encryptedlen = payload_size / 16*16;
     memset(output, 0, payload_size);
 
-    aes_cbc_decrypt(raop_buffer->aes_ctx, &data[12], output, encryptedlen);
-    aes_cbc_reset(raop_buffer->aes_ctx);
+    AES_CTX aes_ctx;
+    AES_set_key(&aes_ctx, raop_buffer->aeskey, raop_buffer->aesiv, AES_MODE_128);
+    AES_convert_key(&aes_ctx);
+    AES_cbc_decrypt(&aes_ctx, &data[12], output, encryptedlen);
+
+    // raop_buffer->aes_ctx = aes_cbc_init(aeskey, aesiv, AES_DECRYPT);
+    // aes_cbc_decrypt(raop_buffer->aes_ctx, &data[12], output, encryptedlen);
+    // aes_cbc_reset(raop_buffer->aes_ctx);
 
     memcpy(output + encryptedlen, &data[12 + encryptedlen], payload_size - encryptedlen);
     *outputlen = payload_size;

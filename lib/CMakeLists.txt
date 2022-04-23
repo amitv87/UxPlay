@@ -46,6 +46,9 @@ if ( APPLE )
   target_link_libraries( airplay 
                          pthread
                          playfair
+                         crypto
+                         curve25519
+                         ed25519
                          llhttp )
 else()
   target_link_libraries( airplay PUBLIC 
@@ -76,6 +79,13 @@ if( UNIX AND NOT APPLE )
   find_package(OpenSSL 1.1.1 REQUIRED)
   target_compile_definitions( airplay PUBLIC OPENSSL_API_COMPAT=0x10101000L )
   target_link_libraries( airplay PUBLIC OpenSSL::Crypto )
+elseif( APPLE )
+  # set(OSX_LIB_PATH $ENV{OSX_LIB_PATH})
+  # target_include_directories(airplay PRIVATE
+  #   ${OSX_LIB_PATH}/include
+  #   ${OSX_LIB_PATH}/ssl/include
+  # )
+  # target_link_libraries(airplay ${OSX_LIB_PATH}/ssl/lib/libcrypto.a )
 elseif( APPLE )
   # use static linking
   # can either compile Openssl 1.1.1 or 3.0.0  from source (install_dev  to /usr/local) or use Macports or Brew

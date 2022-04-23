@@ -395,11 +395,11 @@ raop_handler_setup(raop_conn_t *conn,
         } else {
             unsigned char eaeskey[64] = {};
             memcpy(eaeskey, aeskey, 16);
-            sha_ctx_t *ctx = sha_init();
-            sha_update(ctx, eaeskey, 16);
-            sha_update(ctx, ecdh_secret, 32);
-            sha_final(ctx, eaeskey, NULL);
-            sha_destroy(ctx);
+            sha512_context ctx;
+            sha512_init(&ctx);
+            sha512_update(&ctx, eaeskey, 16);
+            sha512_update(&ctx, ecdh_secret, 32);
+            sha512_final(&ctx, eaeskey);
             memcpy(aeskey, eaeskey, 16);
             str = utils_data_to_string(aeskey, 16, 16);
             logger_log(conn->raop->logger, LOGGER_DEBUG, "16 byte aeskey after sha-256 hash with ecdh_secret:\n%s", str);

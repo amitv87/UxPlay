@@ -1,6 +1,5 @@
 /**
  *  Copyright (C) 2018  Juho Vähä-Herttua
- *  Copyright (C) 2020  Jaslo Ziska
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -13,11 +12,20 @@
  *  Lesser General Public License for more details.
  */
 
-#include "crypto.h"
-
 #ifndef PAIRING_H
 #define PAIRING_H
 
+#include "aes.h"
+#include "aes_ctr.h"
+#include "crypto/crypto.h"
+#include "ed25519/sha512.h"
+#include "ed25519/ed25519.h"
+#include "curve25519/curve25519.h"
+
+#define X25519_KEY_SIZE 32
+#define ED25519_KEY_SIZE 32
+#define AES_128_BLOCK_SIZE 16
+#define SHA512_DIGEST_LENGTH 64
 #define PAIRING_SIG_SIZE (2 * X25519_KEY_SIZE)
 
 typedef struct pairing_s pairing_t;

@@ -92,6 +92,11 @@ int ed25519_verify(const unsigned char *signature, size_t signature_len,
 
 // SHA512
 
+
+#ifndef SHA512_DIGEST_LENGTH
+#define SHA512_DIGEST_LENGTH 64
+#endif
+
 typedef struct sha_ctx_s sha_ctx_t;
 sha_ctx_t *sha_init();
 void sha_update(sha_ctx_t *ctx, const uint8_t *in, int len);

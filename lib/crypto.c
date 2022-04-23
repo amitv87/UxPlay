@@ -1,3 +1,4 @@
+#ifdef USE_OPENSSL
 /**
  * RPiPlay - An open-source AirPlay mirroring server for Raspberry Pi
  * Copyright (C) 2019 Florian Draschbacher
@@ -420,3 +421,4 @@ void sha_destroy(sha_ctx_t *ctx) {
         free(ctx);
     }
 }
+#endif
